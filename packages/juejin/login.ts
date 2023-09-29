@@ -2,50 +2,69 @@ import puppeteer from 'puppeteer-extra'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth' // 可以自动处理一些常见的反爬虫机制，提高爬取数据的成功率。
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha'
+import { password } from '@inquirer/prompts'
+import { EPlatform, writeFileContent } from '@headless/common'
 
 puppeteer.use(StealthPlugin())
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 puppeteer.use(RecaptchaPlugin())
 
-const browser = await puppeteer.launch({ headless: true })
+const browser = await puppeteer.launch({
+	headless: false,
+	defaultViewport: {
+		width: 1200,
+		height: 800,
+	},
+	args: ['--no-sandbox', '--disable-web-security', `--window-size=1600,800`],
+	devtools: true,
+})
 
 const page = await browser.newPage()
-await page.setViewport({ width: 1960, height: 1080 })
 
 await page.goto('https://juejin.cn/user/center/signin?from=main_page')
-await page.screenshot({ path: 'progress/1.png', fullPage: true })
+
 await page.click('.login-user-name')
 await page.waitForSelector('.number-input')
-await page.screenshot({ path: 'progress/2.png', fullPage: true })
+await page.screenshot({ path: 'progress/l1.png', fullPage: true })
 await page.type('.number-input', '19905076109')
-// await page.type('input[name="registerSmsCode"]', 'yshzx171107.')
 await page.click('.send-vcode-btn')
-await page.screenshot({ path: 'progress/3.png', fullPage: true })
 
-// 等待验证码 img 标签加载（注意这里还没有加载完成图片）
 await page.waitForSelector('#captcha-verify-image')
-// await page.screenshot({ path: 'progress/4.png', fullPage: true })
 async function handleDrag() {
 	// 调用 evaluate 可以在浏览器中执行代码，最后返回我们需要的滑动距离
 	const coordinateShift = await page.evaluate(async () => {
 		// 从这开始就是在浏览器中执行代码，已经可以看到我们用熟悉的 querySelector 查找标签
-		const image = document.querySelector(
+		const cvs = document.querySelector(
 			'#captcha-verify-image'
-		) as HTMLImageElement
-		// 创建画布
-		const canvas = document.createElement('canvas')
-		canvas.width = image.width
-		canvas.height = image.height
-		const ctx = canvas.getContext('2d')
-		// // 等待图片加载完成
+		) as HTMLCanvasElement
+
 		await new Promise(resolve => {
-			// image.onload = () => {
-			// 	resolve(null)
-			// }
 			setTimeout(() => {
 				resolve(null)
-			}, 1000)
+			}, 3000)
 		})
+
+		const dataUrl = cvs.toDataURL()
+		const image = new Image()
+		image.width = 340 // 这个得先写死一下
+		image.height = 212 // 这个得先写死一下
+		image.src = dataUrl
+		document.body.appendChild(image)
+
+		// // 等待图片加载完成
+		await new Promise(resolve => {
+			image.onload = () => {
+				resolve(null)
+			}
+		})
+
+		// 创建画布
+		const canvas = document.createElement('canvas')
+
+		canvas.width = image.width
+		canvas.height = image.height
+
+		const ctx = canvas.getContext('2d')
 		// 将验证码图片绘制到画布上
 		ctx?.drawImage(image, 0, 0, image.width, image.height)
 		// 获取画布上的像素数据
@@ -83,7 +102,6 @@ async function handleDrag() {
 		}
 		return coordinateShift
 	})
-	console.log('2222', coordinateShift)
 	// 你无需理解参数都是什么作用
 	function easeOutBounce(t: number, b: number, c: number, d: number) {
 		if ((t /= d) < 1 / 2.75) {
@@ -100,7 +118,6 @@ async function handleDrag() {
 	const dragBox = await drag?.boundingBox()
 	const dragX = dragBox?.x! + dragBox!.width / 2 + 2
 	const dragY = dragBox!.y + dragBox!.height / 2 + 2
-	console.log('dragBox', dragBox)
 
 	await page.mouse.move(dragX, dragY)
 	await page.mouse.down()
@@ -126,29 +143,56 @@ async function handleDrag() {
 	// 松手前最好还是等待一下，这也很符合真实操作
 	await page.waitForTimeout(800)
 	await page.mouse.up()
-	await page.screenshot({ path: 'progress/5aaaa.png', fullPage: true })
+	await page.screenshot({ path: 'progress/l2.png', fullPage: true })
+
+	try {
+		// 等待校验成功的元素出现
+		await page.waitForSelector('.captcha_verify_message-success', {
+			timeout: 1000,
+		})
+	} catch (error) {
+		console.log('catch 了')
+		await page.waitForTimeout(500)
+		// 再次执行上面的代码
+		// await handleDrag()
+	}
 }
 
 await handleDrag()
 
-console.log('3333')
+const smsCode = await password({ message: '请输入掘金验证码\n', mask: true })
+await page.type('input[name="registerSmsCode"]', smsCode)
+await page.click('button.btn')
 
+await page.evaluate(() => {
+	const buttons = document.querySelectorAll('.btn') as unknown as HTMLElement[]
+	for (let button of buttons) {
+		if (button.innerText.includes('登录 / 注册')) {
+			button.click()
+			break
+		}
+	}
+})
+
+console.log('🎉 登录成功')
+
+await page.waitForFunction(() => {
+	const elements = document.querySelector('.login-user-name')
+	return !elements
+})
+
+const cookies = await page.cookies()
+console.log('cookie.length', cookies.length)
 try {
-	// 等待校验成功的元素出现
-	await page.waitForSelector('.captcha_verify_message-success', {
-		timeout: 1000,
-	})
-	console.log('success')
+	const res = await writeFileContent(
+		EPlatform.稀土掘金,
+		JSON.stringify(cookies)
+	)
+	if (res) {
+		console.log('🎉 cookie 已重新获取 并写入成功 🎉')
+	}
 } catch (error) {
-	console.log('error')
-	// await page.waitForTimeout(500)
-	// // 再次执行上面的代码
-	// await handleDrag()
+	console.log('💥 cookie 写入失败，请检查登录环节 💥')
 }
-console.log('444444')
-setTimeout(async () => {
-	await page.screenshot({ path: 'progress/5.png', fullPage: true })
-	await page.screenshot({ path: 'progress/ssss.png', fullPage: true })
-	console.log('didididi')
-	await browser.close()
-}, 4000)
+
+await browser.close()
