@@ -1,0 +1,15 @@
+{
+	"name": "@headless/juejin",
+	"version": "1.0.0",
+	"description": "@headless/juejin",
+	"main": "index.ts",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "ts-node main.ts"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {}
+}
