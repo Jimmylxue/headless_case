@@ -1,0 +1,45 @@
+name: 掘金自动签到
+
+on:
+  push:
+    # push 代码的时候 哪个分支会受到影响 这里是 master 主分支
+    branches:
+      - master
+  schedule:
+    # 每日9点 执行一次定时任务 掘金打卡签到
+    - cron: '0 09 * * *'
+
+# 推送之后执行一系列的任务
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 获取代码
+      - name: 迁出代码
+        # 使用action库 action/checkout获取大妈
+        uses: actions/checkout@master
+      # 安装Node10
+
+      - name: 安装node.js
+        # 使用action库  actions/setup-node安装node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.17.1
+
+      - name: 安装pnpm
+        run: npm install -g pnpm
+
+      # 安装依赖
+      - name: 安装依赖
+        run: pnpm install
+
+      # 执行签到脚本
+      - name: 打包
+        run: pnpm run juejin
+
+        # 推送信息到微信
+      - name: 推送信息到微信
+        uses: easychen/github-action-server-chan@main
+        with:
+          sendkey: ${{ secrets.PRIVATE_FANGTANG_KEY }}
+          title: '掘金自动签到完成'
