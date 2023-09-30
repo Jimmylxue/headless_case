@@ -27,7 +27,7 @@ const browser = await puppeteer.launch({
 		height: 800,
 	},
 	args: ['--no-sandbox', '--disable-web-security', `--window-size=1600,800`],
-	devtools: true,
+	// devtools: true,
 })
 
 // 创建一个新页面
@@ -73,7 +73,6 @@ try {
 	await page.waitForSelector('.header-text', { timeout: 2000 })
 	console.log('🎉 签到成功')
 	const cookies = await page.cookies()
-	console.log('cookies', cookies)
 	const res = await writeFileContent(
 		EPlatform.稀土掘金,
 		JSON.stringify(cookies)
@@ -84,3 +83,5 @@ try {
 } catch (error) {
 	console.log('💥 签到失败，反馈作者')
 }
+
+await browser.close()
