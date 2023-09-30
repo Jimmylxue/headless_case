@@ -10,13 +10,13 @@ puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 puppeteer.use(RecaptchaPlugin())
 
 const browser = await puppeteer.launch({
-	headless: false,
+	headless: true,
 	defaultViewport: {
 		width: 1200,
 		height: 800,
 	},
 	args: ['--no-sandbox', '--disable-web-security', `--window-size=1600,800`],
-	devtools: true,
+	devtools: false,
 })
 
 const page = await browser.newPage()
