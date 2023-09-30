@@ -27,7 +27,7 @@ jobs:
           node-version: 16.17.1
 
       - name: 安装pnpm
-        run: npm install -g pnpm
+        run: npm install -g pnpm@7.12.2
 
       # 安装依赖
       - name: 安装依赖
