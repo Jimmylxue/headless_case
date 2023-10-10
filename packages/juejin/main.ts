@@ -21,7 +21,7 @@ if (!fileContent) {
 }
 
 const browser = await puppeteer.launch({
-	headless: false,
+	headless: true,
 	defaultViewport: {
 		width: 1200,
 		height: 800,
