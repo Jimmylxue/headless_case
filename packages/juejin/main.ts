@@ -21,7 +21,7 @@ if (!fileContent) {
 }
 
 const browser = await puppeteer.launch({
-	headless: true,
+	headless: false,
 	defaultViewport: {
 		width: 1200,
 		height: 800,
@@ -80,8 +80,38 @@ try {
 	if (res) {
 		console.log('🎉 cookie 已覆盖 🎉')
 	}
+
+	await page.evaluate(() => {
+		const buttons = document.querySelectorAll(
+			'.btn'
+		) as unknown as HTMLElement[]
+		for (let button of buttons) {
+			if (button.innerText.includes('去抽奖')) {
+				button.click()
+				break
+			}
+		}
+	})
 } catch (error) {
 	console.log('💥 签到失败，反馈作者')
+}
+
+try {
+	await page.waitForSelector('.text-free', { timeout: 3000 })
+	await page.evaluate(() => {
+		const buttons = document.querySelectorAll(
+			'.text-free'
+		) as unknown as HTMLElement[]
+		for (let button of buttons) {
+			if (button.innerText.includes('免费抽奖次数：1次')) {
+				button.click()
+				break
+			}
+		}
+	})
+	console.log('🎉 抽奖成功 🎉')
+} catch (error) {
+	console.log('💥 您已抽过奖')
 }
 
 await browser.close()
