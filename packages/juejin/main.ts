@@ -21,7 +21,7 @@ if (!fileContent) {
 }
 
 const browser = await puppeteer.launch({
-	headless: true,
+	headless: false,
 	defaultViewport: {
 		width: 1200,
 		height: 800,
@@ -114,4 +114,5 @@ try {
 	console.log('💥 您已抽过奖')
 }
 
+page.waitForTimeout(1000)
 await browser.close()
