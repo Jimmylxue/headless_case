@@ -98,6 +98,7 @@ try {
 
 try {
 	await page.waitForSelector('.text-free', { timeout: 3000 })
+	await page.waitForTimeout(1000)
 	await page.evaluate(() => {
 		const buttons = document.querySelectorAll(
 			'.text-free'
@@ -114,5 +115,5 @@ try {
 	console.log('💥 您已抽过奖')
 }
 
-page.waitForTimeout(1000)
+await page.waitForTimeout(1000)
 await browser.close()
