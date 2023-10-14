@@ -12,6 +12,8 @@ export function getCookiePath(platform: EPlatform) {
 	switch (platform) {
 		case EPlatform.稀土掘金:
 			return resolve(__dirname, '../cookies/juejin.ts')
+		case EPlatform.后盾人:
+			return resolve(__dirname, '../cookies/houdunren.ts')
 	}
 }
 
