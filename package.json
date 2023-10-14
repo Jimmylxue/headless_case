@@ -6,7 +6,8 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"juejin": "pnpm -C ./packages/juejin dev",
-		"juejin-login": "pnpm -C ./packages/juejin login"
+		"juejin-login": "pnpm -C ./packages/juejin login",
+		"houdunren-demo": "pnpm -C ./packages/houdunren demo"
 	},
 	"keywords": [],
 	"author": "",
@@ -19,6 +20,7 @@
 		"puppeteer-extra-plugin-adblocker": "^2.13.6",
 		"puppeteer-extra-plugin-recaptcha": "^3.6.8",
 		"puppeteer-extra-plugin-stealth": "^2.11.2",
+		"tesseract.js": "^5.0.2",
 		"ts-node": "^10.9.1",
 		"typescript": "^5.2.2"
 	},

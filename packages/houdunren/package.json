@@ -1,0 +1,19 @@
+{
+	"name": "@headless/houdunren",
+	"version": "1.0.0",
+	"description": "@headless/houdunren",
+	"main": "index.ts",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"demo": "ts-node-esm test.ts",
+		"login": "ts-node-esm login.ts"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@headless/common": "workspace:^1.0.0"
+	},
+	"devDependencies": {}
+}
