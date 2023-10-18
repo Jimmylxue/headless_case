@@ -3,7 +3,13 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth' // 可以自动处理
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha'
 import { password } from '@inquirer/prompts'
-import { EPlatform, writeFileContent } from '@headless/common'
+import {
+	EPlatform,
+	parseCookiesToString,
+	updateServerCookies,
+	writeFileContent,
+} from '@headless/common'
+import config from '../../headless.json' assert { type: 'json' }
 
 puppeteer.use(StealthPlugin())
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
@@ -184,10 +190,15 @@ await page.waitForFunction(() => {
 const cookies = await page.cookies()
 console.log('cookie.length', cookies.length)
 try {
-	const res = await writeFileContent(
-		EPlatform.稀土掘金,
-		JSON.stringify(cookies)
-	)
+	let res
+	if (config.juejin.use_online_cookie) {
+		res = await updateServerCookies(
+			EPlatform.稀土掘金,
+			parseCookiesToString(cookies as any)
+		)
+	} else {
+		res = await writeFileContent(EPlatform.稀土掘金, JSON.stringify(cookies))
+	}
 	if (res) {
 		console.log('🎉 cookie 已重新获取 并写入成功 🎉')
 	}

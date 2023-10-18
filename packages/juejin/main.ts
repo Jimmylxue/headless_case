@@ -2,8 +2,17 @@ import puppeteer from 'puppeteer-extra'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth' // 可以自动处理一些常见的反爬虫机制，提高爬取数据的成功率。
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha'
-import { EPlatform, getFileContent, writeFileContent } from '@headless/common'
+import {
+	EPlatform,
+	getFileContent,
+	writeFileContent,
+	getServerCookie,
+	updateServerCookies,
+	parseCookiesToString,
+	parseCookiesToArray,
+} from '@headless/common'
 import { spawnSync } from 'child_process'
+import config from '../../headless.json' assert { type: 'json' }
 
 puppeteer.use(StealthPlugin())
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
@@ -11,8 +20,14 @@ puppeteer.use(RecaptchaPlugin())
 
 let fileCookie: string = ''
 let cookies
+let fileContent
 
-const fileContent = await getFileContent(EPlatform.稀土掘金)
+if (config.juejin.use_online_cookie) {
+	const res = await getServerCookie(EPlatform.稀土掘金)
+	fileContent = res?.cookies
+} else {
+	fileContent = await getFileContent(EPlatform.稀土掘金)
+}
 
 if (!fileContent) {
 	spawnSync('ts-node-esm', ['login.ts'], {
@@ -35,8 +50,18 @@ let page = await browser.newPage()
 
 async function refreshCookie() {
 	console.log('🚩 主进程 刷新了 cookie')
-	fileCookie = (await getFileContent(EPlatform.稀土掘金)) as string
-	cookies = JSON.parse(fileCookie)
+
+	if (config.juejin.use_online_cookie) {
+		const res = await getServerCookie(EPlatform.稀土掘金)
+		cookies = parseCookiesToArray(res?.cookies!).map(item => ({
+			...item,
+			domain: '.juejin.cn', // 手动填加一下domain
+		}))
+		cookies.pop()
+	} else {
+		fileCookie = (await getFileContent(EPlatform.稀土掘金)) as string
+		cookies = JSON.parse(fileCookie)
+	}
 	// @ts-ignore
 	cookies.forEach(cookie => {
 		page.setCookie(cookie)
@@ -45,7 +70,7 @@ async function refreshCookie() {
 
 async function start() {
 	await refreshCookie()
-
+	console.log('ok')
 	await page.goto('https://juejin.cn/user/center/signin?from=main_page')
 
 	try {
@@ -73,10 +98,15 @@ try {
 	await page.waitForSelector('.header-text', { timeout: 2000 })
 	console.log('🎉 签到成功')
 	const cookies = await page.cookies()
-	const res = await writeFileContent(
-		EPlatform.稀土掘金,
-		JSON.stringify(cookies)
-	)
+	let res
+	if (config.juejin.use_online_cookie) {
+		res = await updateServerCookies(
+			EPlatform.稀土掘金,
+			parseCookiesToString(cookies as any)
+		)
+	} else {
+		res = await writeFileContent(EPlatform.稀土掘金, JSON.stringify(cookies))
+	}
 	if (res) {
 		console.log('🎉 cookie 已覆盖 🎉')
 	}

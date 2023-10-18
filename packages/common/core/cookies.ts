@@ -28,12 +28,12 @@ export function parseCookiesToArray(cookieString: string) {
  * @param cookieString
  * @returns {string}
  */
-export function setCookiesToString(cookiesArray: cookiesArr) {
+export function parseCookiesToString(cookiesArray: cookiesArr) {
 	var cookieString = ''
 
 	for (var i = 0; i < cookiesArray.length; i++) {
 		var cookie = cookiesArray[i]
 		cookieString += cookie.name + '=' + cookie.value + '; '
 	}
-	document.cookie = cookieString
+	return cookieString
 }
