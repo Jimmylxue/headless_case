@@ -17,6 +17,13 @@ export function getCookiePath(platform: EPlatform) {
 	}
 }
 
-// module.exports = {
-// 	getCookiePath,
-// }
+export function formatArgs(arr: string[]) {
+	const obj: {
+		[key in string]: string
+	} = {}
+	arr.forEach(item => {
+		const [key, value] = item.split('=')
+		obj[key] = value
+	})
+	return obj
+}

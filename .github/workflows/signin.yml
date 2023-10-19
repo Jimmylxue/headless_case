@@ -33,7 +33,7 @@ jobs:
 
       # 执行签到脚本
       - name: 打包
-        run: pnpm run juejin
+        run: pnpm run juejin userId=${{ secrets.userId }}
 
         # 推送信息到微信
       - name: 推送信息到微信

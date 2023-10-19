@@ -1,13 +1,17 @@
 import axios, { AxiosResponse } from 'axios'
 import { EPlatform, EWebSite_ID } from '../core/type.ts'
 import { TUpdateCookies, TUserCookieDetails } from './type.ts'
+import { formatArgs } from '../core/core.ts'
+const args = formatArgs(process.argv.slice(2))
+
+console.log('args', args)
 
 async function getJueJinCookies() {
 	const res = await axios.post<any, AxiosResponse<TUserCookieDetails>>(
 		'https://api.jimmyxuexue.top/cookies/detail',
 		{
 			website_id: 1001,
-			userId: 1,
+			userId: Number(args.userId),
 		}
 	)
 	if (res?.data?.code === 200) {
@@ -22,9 +26,8 @@ async function updateJueJinCookies(cookies: string) {
 		'https://api.jimmyxuexue.top/cookies/update',
 		{
 			website_id: 1001,
-			userId: 1,
+			userId: args.userId,
 			cookies,
-			site_cookie_id: 1001,
 		}
 	)
 	return res.data.code === 200
