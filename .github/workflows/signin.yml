@@ -16,6 +16,9 @@ jobs:
       - name: 迁出代码
         # 使用action库 action/checkout获取大妈
         uses: actions/checkout@master
+        with:
+          # personal access token
+          token: ${{ secrets.TOKEN }}
       # 安装Node10
 
       - name: 安装node.js
@@ -42,9 +45,6 @@ jobs:
           sendkey: ${{ secrets.PRIVATE_FANGTANG_KEY }}
           title: '掘金自动签到完成'
 
-      - name: 更新仓库
-        run: actions/checkout@v2
-
       - name: Display Git status
         run: git status
 
@@ -55,7 +55,5 @@ jobs:
           git add .
           git commit -m "action commit : auto commit"
 
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.TOKEN }}
+      - name: push code to master
+        run: git push origin master
