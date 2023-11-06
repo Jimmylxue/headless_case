@@ -41,3 +41,21 @@ jobs:
         with:
           sendkey: ${{ secrets.PRIVATE_FANGTANG_KEY }}
           title: '掘金自动签到完成'
+
+      - name: 更新仓库
+        run: actions/checkout@v2
+
+      - name: Display Git status
+        run: git status
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "1002661758@qq.com"
+          git config --local user.name "jimmyxuexue"
+          git add .
+          git commit -m "action commit : auto commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.TOKEN }}
