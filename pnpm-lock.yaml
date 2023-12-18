@@ -8,6 +8,7 @@ importers:
       '@types/inquirer': ^9.0.3
       '@types/node': ^20.7.1
       axios: ^1.5.1
+      form-data: ^4.0.0
       inquirer: ^9.2.11
       puppeteer: ^21.3.5
       puppeteer-extra: ^3.3.6
@@ -20,6 +21,7 @@ importers:
     dependencies:
       '@inquirer/prompts': 3.1.2
       axios: 1.5.1
+      form-data: 4.0.0
       inquirer: 9.2.11
       puppeteer: 21.3.5_typescript@5.2.2
       puppeteer-extra: 3.3.6_puppeteer@21.3.5

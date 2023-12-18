@@ -1,12 +1,12 @@
 import puppeteer from 'puppeteer-extra'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth' // 可以自动处理一些常见的反爬虫机制，提高爬取数据的成功率。
-import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
+// import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha'
 import { EPlatform, getFileContent, writeFileContent } from '@headless/common'
 import { spawnSync } from 'child_process'
 
 puppeteer.use(StealthPlugin())
-puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
+// puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 puppeteer.use(RecaptchaPlugin())
 
 let fileCookie: string = ''
@@ -37,6 +37,7 @@ async function refreshCookie() {
 	console.log('🚩 主进程 刷新了 cookie')
 	fileCookie = (await getFileContent(EPlatform.后盾人)) as string
 	cookies = JSON.parse(fileCookie)
+	console.log('cookies~', cookies)
 	// @ts-ignore
 	cookies.forEach(cookie => {
 		page.setCookie(cookie)
